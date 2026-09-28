@@ -13,6 +13,7 @@
 </p>
 
 <p align="center">
+  ![desktop](screenshots/desktop.png)
   <img src="screenshots/desktop.png" width="100%">
 </p>
 
