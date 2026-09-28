@@ -1,0 +1,700 @@
+type: vertical-stack
+cards:
+  - type: grid
+    columns: 4
+    square: false
+    cards:
+
+      # ═══════ ГИПЕРВИЗОР (Proxmox VE) ═══════
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Proxmox VE
+            secondary: >-
+              {% set h = states('sensor.proxmox_uptime') | float(0) %}
+              {{ states('sensor.proxmox_status') }} · {{ (h // 24) | int }}д {{ (h % 24) | int }}ч
+            icon: mdi:server
+            icon_color: >-
+              {% set s = states('sensor.proxmox_status') | lower %}
+              {% if s in ['running','online','on','active'] %}green
+              {% elif s in ['paused','suspended','unknown'] %}yellow
+              {% else %}grey{% endif %}
+            layout: horizontal
+            entity: sensor.proxmox_status
+            tap_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 8px 8px 0 0;
+                  background: var(--ha-card-background);
+                  border: 1px solid rgba(0,0,0,.08);
+                  border-bottom: none;
+                  border-left: 3px solid #E57000;
+                  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+                  font-family: 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;
+                }
+
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                icon: mdi:stop
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.proxmox_stop}
+                  confirmation: {text: Остановить Proxmox?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(229,112,0,.06)
+                    - border: 1px solid rgba(229,112,0,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#E57000'
+
+              - type: custom:button-card
+                icon: mdi:restart
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.proxmox_reboot}
+                  confirmation: {text: Перезапустить Proxmox?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(229,112,0,.06)
+                    - border: 1px solid rgba(229,112,0,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#E57000'
+
+              - type: custom:button-card
+                icon: mdi:power
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.proxmox_shutdown}
+                  confirmation: {text: Выключить Proxmox?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(64,64,64,.06)
+                    - border: 1px solid rgba(64,64,64,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#404040'
+            card_mod:
+              style: |
+                #root {
+                  display: flex;
+                  justify-content: center;
+                  gap: 8px;
+                  padding: 8px 12px;
+                  background: var(--ha-card-background);
+                  border: 1px solid rgba(0,0,0,.08);
+                  border-top: 1px solid rgba(0,0,0,.05);
+                  border-left: 3px solid #E57000;
+                  border-radius: 0 0 8px 8px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+                  margin-bottom: 8px;
+                }
+
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: custom:mini-graph-card
+                name: CPU
+                icon: mdi:cpu-64-bit
+                entities: [{entity: sensor.proxmox_cpu_usage, color: '#E57000'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: &graph-mod
+                  style: |
+                    ha-card {
+                      border-radius: 8px;
+                      background: var(--ha-card-background);
+                      border: 1px solid rgba(0,0,0,.06);
+                      box-shadow: 0 1px 2px rgba(0,0,0,.05);
+                      font-family: 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;
+                    }
+                    .header {font-size:11px;font-weight:600;color:var(--secondary-text-color);padding:6px 10px 2px}
+
+              - type: custom:mini-graph-card
+                name: Память
+                icon: mdi:memory
+                entities: [{entity: sensor.proxmox_memory_usage, color: '#404040'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: local
+                icon: mdi:harddisk
+                entities: [{entity: sensor.proxmox_local_storage, color: '#E57000'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: local-zfs
+                icon: mdi:harddisk
+                entities: [{entity: sensor.proxmox_local_zfs, color: '#F08000'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: nas-zfs
+                icon: mdi:harddisk
+                entities: [{entity: sensor.proxmox_nas_zfs, color: '#404040'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+      # ═══════ NAS (Xpenology / Synology) ═══════
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: NAS
+            secondary: >-
+              {% set h = states('sensor.nas_uptime') | float(0) %}
+              {{ states('sensor.nas_status') }} · {{ (h // 24) | int }}д {{ (h % 24) | int }}ч
+            icon: mdi:nas
+            icon_color: >-
+              {% set s = states('sensor.nas_status') | lower %}
+              {% if s in ['running','online','on','active'] %}green
+              {% elif s in ['paused','suspended','unknown'] %}yellow
+              {% else %}grey{% endif %}
+            layout: horizontal
+            entity: sensor.nas_status
+            tap_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 8px 8px 0 0;
+                  background: var(--ha-card-background);
+                  border: 1px solid rgba(0,0,0,.08);
+                  border-bottom: none;
+                  border-left: 3px solid #0066B3;
+                  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+                  font-family: 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;
+                }
+
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                icon: mdi:power
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.nas_shutdown}
+                  confirmation: {text: Выключить NAS?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(0,102,179,.06)
+                    - border: 1px solid rgba(0,102,179,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#0066B3'
+
+              - type: custom:button-card
+                icon: mdi:restart
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.nas_reboot}
+                  confirmation: {text: Перезапустить NAS?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(0,102,179,.06)
+                    - border: 1px solid rgba(0,102,179,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#0066B3'
+            card_mod:
+              style: |
+                #root {
+                  display: flex;
+                  justify-content: center;
+                  gap: 8px;
+                  padding: 8px 12px;
+                  background: var(--ha-card-background);
+                  border: 1px solid rgba(0,0,0,.08);
+                  border-top: 1px solid rgba(0,0,0,.05);
+                  border-left: 3px solid #0066B3;
+                  border-radius: 0 0 8px 8px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+                  margin-bottom: 8px;
+                }
+
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: custom:mini-graph-card
+                name: CPU
+                icon: mdi:cpu-64-bit
+                entities: [{entity: sensor.nas_cpu_usage, color: '#0066B3'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Память
+                icon: mdi:memory
+                entities: [{entity: sensor.nas_memory_usage, color: '#1A3050'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Загрузка
+                icon: mdi:download-network
+                entities: [{entity: sensor.nas_network_input, color: '#0066B3'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Отправка
+                icon: mdi:upload-network
+                entities: [{entity: sensor.nas_network_output, color: '#1A3050'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Vol 1
+                icon: mdi:harddisk
+                entities: [{entity: sensor.nas_volume_1, color: '#0066B3'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Vol 2
+                icon: mdi:harddisk
+                entities: [{entity: sensor.nas_volume_2, color: '#1A3050'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+      # ═══════ HOME ASSISTANT OS ═══════
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Home Assistant
+            secondary: >-
+              {% set h = states('sensor.ha_uptime') | float(0) %}
+              {{ states('sensor.ha_status') }} · {{ (h // 24) | int }}д {{ (h % 24) | int }}ч
+            icon: mdi:home-assistant
+            icon_color: >-
+              {% set s = states('sensor.ha_status') | lower %}
+              {% if s in ['running','online','on','active'] %}green
+              {% elif s in ['paused','suspended','unknown'] %}yellow
+              {% else %}grey{% endif %}
+            layout: horizontal
+            entity: sensor.ha_status
+            tap_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 8px 8px 0 0;
+                  background: var(--ha-card-background);
+                  border: 1px solid rgba(0,0,0,.08);
+                  border-bottom: none;
+                  border-left: 3px solid #41BDF5;
+                  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+                  font-family: 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;
+                }
+
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                icon: mdi:play
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.ha_start}
+                  confirmation: {text: Запустить HA?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(65,189,245,.06)
+                    - border: 1px solid rgba(65,189,245,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#41BDF5'
+
+              - type: custom:button-card
+                icon: mdi:stop
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.ha_stop}
+                  confirmation: {text: Остановить HA?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(65,189,245,.06)
+                    - border: 1px solid rgba(65,189,245,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#41BDF5'
+
+              - type: custom:button-card
+                icon: mdi:restart
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.ha_reboot}
+                  confirmation: {text: Перезапустить HA?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(65,189,245,.06)
+                    - border: 1px solid rgba(65,189,245,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#41BDF5'
+
+              - type: custom:button-card
+                icon: mdi:power
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.ha_shutdown}
+                  confirmation: {text: Выключить HA?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(0,90,135,.06)
+                    - border: 1px solid rgba(0,90,135,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#005A87'
+            card_mod:
+              style: |
+                #root {
+                  display: flex;
+                  justify-content: center;
+                  gap: 8px;
+                  padding: 8px 12px;
+                  background: var(--ha-card-background);
+                  border: 1px solid rgba(0,0,0,.08);
+                  border-top: 1px solid rgba(0,0,0,.05);
+                  border-left: 3px solid #41BDF5;
+                  border-radius: 0 0 8px 8px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+                  margin-bottom: 8px;
+                }
+
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: custom:mini-graph-card
+                name: CPU
+                icon: mdi:cpu-64-bit
+                entities: [{entity: sensor.ha_cpu_usage, color: '#41BDF5'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Память
+                icon: mdi:memory
+                entities: [{entity: sensor.ha_memory_usage, color: '#005A87'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Загрузка
+                icon: mdi:download-network
+                entities: [{entity: sensor.ha_network_input, color: '#41BDF5'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Отправка
+                icon: mdi:upload-network
+                entities: [{entity: sensor.ha_network_output, color: '#005A87'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+      # ═══════ DESKTOP VM (Q4OS / Windows / etc.) ═══════
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Desktop VM
+            secondary: >-
+              {% set h = states('sensor.desktop_uptime') | float(0) %}
+              {{ states('sensor.desktop_status') }} · {{ (h // 24) | int }}д {{ (h % 24) | int }}ч
+            icon: mdi:desktop-tower
+            icon_color: >-
+              {% set s = states('sensor.desktop_status') | lower %}
+              {% if s in ['running','online','on','active'] %}green
+              {% elif s in ['paused','suspended','unknown'] %}yellow
+              {% else %}grey{% endif %}
+            layout: horizontal
+            entity: sensor.desktop_status
+            tap_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 8px 8px 0 0;
+                  background: var(--ha-card-background);
+                  border: 1px solid rgba(0,0,0,.08);
+                  border-bottom: none;
+                  border-left: 3px solid #4456A0;
+                  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+                  font-family: 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;
+                }
+
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                icon: mdi:play
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.desktop_start}
+                  confirmation: {text: Запустить VM?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(68,86,160,.06)
+                    - border: 1px solid rgba(68,86,160,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#4456A0'
+
+              - type: custom:button-card
+                icon: mdi:stop
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.desktop_stop}
+                  confirmation: {text: Остановить VM?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(68,86,160,.06)
+                    - border: 1px solid rgba(68,86,160,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#4456A0'
+
+              - type: custom:button-card
+                icon: mdi:restart
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.desktop_reboot}
+                  confirmation: {text: Перезапустить VM?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(68,86,160,.06)
+                    - border: 1px solid rgba(68,86,160,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#4456A0'
+
+              - type: custom:button-card
+                icon: mdi:power
+                show_name: false
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  service_data: {entity_id: button.desktop_shutdown}
+                  confirmation: {text: Выключить VM?}
+                styles:
+                  card:
+                    - border-radius: 6px
+                    - background: rgba(43,56,112,.06)
+                    - border: 1px solid rgba(43,56,112,.15)
+                    - height: 32px
+                    - width: 32px
+                    - padding: 0px
+                  icon:
+                    - width: 15px
+                    - height: 15px
+                    - color: '#2B3870'
+            card_mod:
+              style: |
+                #root {
+                  display: flex;
+                  justify-content: center;
+                  gap: 8px;
+                  padding: 8px 12px;
+                  background: var(--ha-card-background);
+                  border: 1px solid rgba(0,0,0,.08);
+                  border-top: 1px solid rgba(0,0,0,.05);
+                  border-left: 3px solid #4456A0;
+                  border-radius: 0 0 8px 8px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+                  margin-bottom: 8px;
+                }
+
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: custom:mini-graph-card
+                name: CPU
+                icon: mdi:cpu-64-bit
+                entities: [{entity: sensor.desktop_cpu_usage, color: '#4456A0'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Память
+                icon: mdi:memory
+                entities: [{entity: sensor.desktop_memory_usage, color: '#2B3870'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Загрузка
+                icon: mdi:download-network
+                entities: [{entity: sensor.desktop_network_input, color: '#4456A0'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+              - type: custom:mini-graph-card
+                name: Отправка
+                icon: mdi:upload-network
+                entities: [{entity: sensor.desktop_network_output, color: '#2B3870'}]
+                hours_to_show: 24
+                points_per_hour: 4
+                line_width: 2
+                height: 56
+                show: {legend: false, fill: fade, labels: false, points: false}
+                card_mod: *graph-mod
+
+grid_options:
+  columns: full
