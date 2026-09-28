@@ -12,8 +12,9 @@
   <i>Один YAML-файл · четыре зависимости из HACS · адаптив к теме</i>
 </p>
 
+![desktop](screenshots/desktop.png)
 <p align="center">
-  ![desktop](screenshots/desktop.png)
+
   <img src="screenshots/desktop.png" width="100%">
 </p>
 
