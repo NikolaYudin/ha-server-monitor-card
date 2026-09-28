@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/YOUR_NICK/ha-server-monitor-card?style=flat-square" alt="Release">
-  <img src="https://img.shields.io/github/license/YOUR_NICK/ha-server-monitor-card?style=flat-square" alt="License">
+  <img src="https://img.shields.io/github/v/release/NikolaYudin/ha-server-monitor-card?style=flat-square" alt="Release">
+  <img src="https://img.shields.io/github/license/NikolaYudin/ha-server-monitor-card?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/Home%20Assistant-2024.8%2B-41BDF5?style=flat-square&logo=homeassistant" alt="HA">
 </p>
 
@@ -233,7 +233,7 @@ A: Добавьте ещё одну `button-card` с `icon: mdi:play` и `servic
 
 ## 📄 Лицензия
 
-MIT © [YOUR_NAME]. См. [LICENSE](LICENSE).
+MIT © [NikolaYudin]. См. [LICENSE](LICENSE).
 
 ---
 
